@@ -23,8 +23,16 @@ app.use("/api/auth", authRoutes);
 app.use("/api/checkout", checkoutRoutes);
 app.use("/api/admin", adminRoutes);
 
+// app.get("/", (req, res) => {
+//     res.send("API Running Successfully");
+// });
+
+
 app.get("/", (req, res) => {
-    res.send("API Running Successfully");
+    res.json({
+        success: true,
+        message: "Backend running"
+    });
 });
 
 // ❌ NO app.listen()
