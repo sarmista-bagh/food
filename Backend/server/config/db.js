@@ -10,22 +10,20 @@ const pool = new Pool({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
 
-    // 🔥 production safety
-    max: 20,              // max connections
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 10000,
+    ssl: {
+        rejectUnauthorized: false,
+    },
 });
 
-// CONNECT CHECK
 pool
     .connect()
     .then((client) => {
-        console.log(" DB Connected Successfully");
+        console.log("DB Connected Successfully");
         client.release();
     })
     .catch((err) => {
-        console.error(" DB Connection Failed:", err.message);
-        process.exit(1); // stop server if DB fails
+        console.error("DB Connection Failed:", err);
+        process.exit(1);
     });
 
 export default pool;
