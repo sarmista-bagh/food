@@ -49,8 +49,8 @@ import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.js";
 import checkoutRoutes from "./routes/checkoutRoute.js";
 import adminRoutes from "./routes/adminRoutes.js";
-import restaurantRoutes from "./routes/restaurantRoutes.js";
-import menuRoutes from "./routes/menuRoutes.js";
+import restaurantRoutes from "./middleware/restaurantRoute.js"
+import menuRoutes from "./middleware/menuRoute.js"
 
 dotenv.config();
 

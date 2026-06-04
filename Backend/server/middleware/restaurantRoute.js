@@ -3,7 +3,7 @@ import pool from "../config/db.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { authorizeRoles } from "../middleware/roleMiddleware.js";
 
-const router = express.Router();
+const restaurantRoutes = express.Router();
 
 /* =========================
    CREATE RESTAURANT
@@ -135,4 +135,4 @@ router.delete(
     }
 );
 
-export default router;
+export default restaurantRoutes;
