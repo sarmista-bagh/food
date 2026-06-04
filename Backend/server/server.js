@@ -6,7 +6,7 @@ import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.js";
 import checkoutRoutes from "./routes/checkoutRoute.js";
 import adminRoutes from "./routes/adminRoutes.js";
-
+import axios from "axios";
 dotenv.config();
 
 const app = express();
@@ -24,6 +24,8 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/checkout", checkoutRoutes);
 app.use("/api/admin", adminRoutes);
+
+
 
 app.get("/", (req, res) => {
     res.json({
