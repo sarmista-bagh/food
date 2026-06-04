@@ -91,7 +91,6 @@
 
 
 
-
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -100,17 +99,17 @@ import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes.js";
 import checkoutRoutes from "./routes/checkoutRoute.js";
 import adminRoutes from "./routes/adminRoutes.js";
-
-import restaurantRoutes from "./middleware/restaurantRoute.js";
-import menuRoutes from "./middleware/menuRoute.js";
+import restaurantRoutes from "./routes/restaurantRoute.js";
+import menuRoutes from "./routes/menuRoute.js";
 
 dotenv.config();
 
 const app = express();
 
+/* Middleware */
 app.use(
     cors({
-        origin: process.env.CLIENT_URL,
+        origin: process.env.CLIENT_URL || "*",
         credentials: true,
     })
 );
@@ -118,17 +117,25 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
+/* Routes */
 app.use("/api/auth", authRoutes);
 app.use("/api/checkout", checkoutRoutes);
 app.use("/api/admin", adminRoutes);
-
 app.use("/api/restaurants", restaurantRoutes);
 app.use("/api/menu", menuRoutes);
 
+/* Health Check */
 app.get("/", (req, res) => {
-    res.json({
+    res.status(200).json({
         success: true,
         message: "Backend running successfully",
+    });
+});
+
+/* 404 Handler */
+app.use((req, res) => {
+    res.status(404).json({
+        message: "Route not found",
     });
 });
 
@@ -137,8 +144,3 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
-
-
-
-
-

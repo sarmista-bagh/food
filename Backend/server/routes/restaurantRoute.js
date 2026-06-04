@@ -139,6 +139,10 @@
 
 
 
+
+
+
+
 import express from "express";
 import pool from "../config/db.js";
 import { protect } from "../middleware/authMiddleware.js";
@@ -146,6 +150,9 @@ import { authorizeRoles } from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
+/* =========================
+   CREATE RESTAURANT
+========================= */
 router.post(
     "/",
     protect,
@@ -160,10 +167,21 @@ router.post(
                 });
             }
 
+            const existing = await pool.query(
+                "SELECT * FROM restaurants WHERE owner_id = $1",
+                [req.user.id]
+            );
+
+            if (existing.rows.length > 0) {
+                return res.status(400).json({
+                    message: "Restaurant already exists",
+                });
+            }
+
             const result = await pool.query(
                 `INSERT INTO restaurants (name, address, owner_id)
-         VALUES ($1, $2, $3)
-         RETURNING *`,
+                 VALUES ($1, $2, $3)
+                 RETURNING *`,
                 [name, address, req.user.id]
             );
 
@@ -171,13 +189,59 @@ router.post(
                 message: "Restaurant created successfully",
                 restaurant: result.rows[0],
             });
+
         } catch (error) {
-            console.error(error);
+            console.log(error);
             res.status(500).json({
                 message: "Server error",
             });
         }
     }
 );
+
+/* =========================
+   GET ALL RESTAURANTS
+========================= */
+router.get("/", async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT *
+            FROM restaurants
+            WHERE is_active = true
+            ORDER BY id DESC
+        `);
+
+        res.json(result.rows);
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: "Server error",
+        });
+    }
+});
+
+/* =========================
+   GET MENU BY RESTAURANT
+========================= */
+router.get("/:id/menu", async (req, res) => {
+    try {
+        const result = await pool.query(
+            `SELECT *
+             FROM menu_items
+             WHERE restaurant_id = $1
+             ORDER BY id DESC`,
+            [req.params.id]
+        );
+
+        res.json(result.rows);
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            message: "Server error",
+        });
+    }
+});
 
 export default router;
