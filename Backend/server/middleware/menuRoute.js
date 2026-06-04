@@ -69,6 +69,9 @@ import { authorizeRoles } from "../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
+/* =========================
+   ADD FOOD ITEM
+========================= */
 router.post(
     "/",
     protect,
@@ -98,8 +101,8 @@ router.post(
 
             const result = await pool.query(
                 `INSERT INTO menu_items (restaurant_id, name, description, price)
-         VALUES ($1, $2, $3, $4)
-         RETURNING *`,
+                 VALUES ($1, $2, $3, $4)
+                 RETURNING *`,
                 [restaurant_id, name, description, price]
             );
 
@@ -115,5 +118,26 @@ router.post(
         }
     }
 );
+
+/* =========================
+   GET ALL MENU ITEMS
+========================= */
+router.get("/", async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT *
+            FROM menu_items
+            ORDER BY id DESC
+        `);
+
+        res.json(result.rows);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            message: "Server error",
+        });
+    }
+});
 
 export default router;
