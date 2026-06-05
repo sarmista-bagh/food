@@ -1,3 +1,98 @@
+// import jwt from "jsonwebtoken";
+// import pool from "../config/db.js";
+
+// export const protect = async (req, res, next) => {
+//     try {
+//         // 🔐 GET TOKEN (cookie OR header fallback)
+//         const token =
+//             req.cookies?.token ||
+//             (req.headers.authorization &&
+//                 req.headers.authorization.startsWith("Bearer")
+//                 ? req.headers.authorization.split(" ")[1]
+//                 : null);
+
+//         if (!token) {
+//             return res.status(401).json({ message: "Not authorized, no token" });
+//         }
+
+//         // 🔐 VERIFY TOKEN
+//         let decoded;
+//         try {
+//             decoded = jwt.verify(token, process.env.JWT_SECRET);
+//         } catch (err) {
+//             return res.status(401).json({ message: "Token invalid or expired" });
+//         }
+
+//         // 👤 GET USER FROM DB
+//         const userResult = await pool.query(
+//             `SELECT id, name, email, role, is_blocked 
+//        FROM users 
+//        WHERE id = $1`,
+//             [decoded.id]
+//         );
+
+//         if (userResult.rows.length === 0) {
+//             return res.status(401).json({ message: "User not found" });
+//         }
+
+//         const user = userResult.rows[0];
+
+//         // 🚫 BLOCK CHECK
+//         if (user.is_blocked) {
+//             return res.status(403).json({ message: "User blocked" });
+//         }
+
+//         // ✅ ATTACH USER
+//         req.user = user;
+
+//         next();
+
+//     } catch (error) {
+//         console.log("Protect middleware error:", error);
+//         return res.status(401).json({ message: "Authentication failed" });
+//     }
+// };
+
+
+
+
+
+
+
+
+// export const authorizeRoles = (...allowedRoles) => {
+//     return (req, res, next) => {
+
+//         console.log("REQ USER:", req.user);
+//         console.log("USER ROLE:", req.user?.role);
+//         console.log("ALLOWED ROLES:", allowedRoles);
+
+//         if (!req.user) {
+//             return res.status(401).json({
+//                 message: "Not authenticated",
+//             });
+//         }
+
+//         const userRole = req.user.role?.toLowerCase();
+//         const normalizedRoles = allowedRoles.map(role =>
+//             role.toLowerCase()
+//         );
+
+//         if (!normalizedRoles.includes(userRole)) {
+//             return res.status(403).json({
+//                 message: "Access denied",
+//             });
+//         }
+
+//         next();
+//     };
+// };
+
+
+
+
+
+
 import jwt from "jsonwebtoken";
 import pool from "../config/db.js";
 
@@ -12,7 +107,9 @@ export const protect = async (req, res, next) => {
                 : null);
 
         if (!token) {
-            return res.status(401).json({ message: "Not authorized, no token" });
+            return res.status(401).json({
+                message: "Not authorized, no token",
+            });
         }
 
         // 🔐 VERIFY TOKEN
@@ -20,26 +117,37 @@ export const protect = async (req, res, next) => {
         try {
             decoded = jwt.verify(token, process.env.JWT_SECRET);
         } catch (err) {
-            return res.status(401).json({ message: "Token invalid or expired" });
+            return res.status(401).json({
+                message: "Token invalid or expired",
+            });
         }
 
         // 👤 GET USER FROM DB
         const userResult = await pool.query(
-            `SELECT id, name, email, role, is_blocked 
-       FROM users 
-       WHERE id = $1`,
+            `
+            SELECT id, name, email, role, is_blocked
+            FROM users
+            WHERE id = $1
+            `,
             [decoded.id]
         );
 
         if (userResult.rows.length === 0) {
-            return res.status(401).json({ message: "User not found" });
+            return res.status(401).json({
+                message: "User not found",
+            });
         }
 
         const user = userResult.rows[0];
 
+        // ✅ DEBUG
+        console.log("AUTH USER:", user);
+
         // 🚫 BLOCK CHECK
         if (user.is_blocked) {
-            return res.status(403).json({ message: "User blocked" });
+            return res.status(403).json({
+                message: "User blocked",
+            });
         }
 
         // ✅ ATTACH USER
@@ -49,6 +157,9 @@ export const protect = async (req, res, next) => {
 
     } catch (error) {
         console.log("Protect middleware error:", error);
-        return res.status(401).json({ message: "Authentication failed" });
+
+        return res.status(401).json({
+            message: "Authentication failed",
+        });
     }
 };
